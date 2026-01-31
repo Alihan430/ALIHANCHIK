@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Автомобильная симуляция</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a237e, #4a148c);
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff9800, #ffeb3b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .car-display {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .car-image {
+            width: 100%;
+            max-width: 350px;
+            margin-bottom: 25px;
+            transition: transform 0.5s;
+        }
+        
+        .car-image:hover {
+            transform: scale(1.03);
+        }
+        
+        .car-details {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #bbbbbb;
+        }
+        
+        .detail-value {
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .fuel-gauge {
+            width: 100%;
+            margin: 15px 0;
+        }
+        
+        .gauge-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .gauge-bar {
+            height: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .gauge-fill {
+            height: 100%;
+            background: linear-gradient(to right, #f44336, #ff9800, #4caf50);
+            border-radius: 12px;
+            width: 50%;
+            transition: width 1s ease;
+        }
+        
+        .controls {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .controls h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #ff9800;
+            font-size: 1.8rem;
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        .control-label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #e0e0e0;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #ff9800, #ff5722);
+            color: white;
+            flex: 1;
+            min-width: 180px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            flex: 1;
+            min-width: 180px;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff9800;
+        }
+        
+        .log {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .log h3 {
+            margin-bottom: 15px;
+            color: #4fc3f7;
+        }
+        
+        .log-content {
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-time {
+            color: #81c784;
+            margin-right: 10px;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 15px;
+        }
+        
+        .engine-status {
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            background: #f44336;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .engine-status.active {
+            background: #4caf50;
+        }
+        
+        .icon {
+            font-size: 1.2rem;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaaaaa;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+        
+        .code-reference {
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-car"></i> Автомобильная симуляция</h1>
+            <p class="subtitle">Интерактивная демонстрация работы класса Car на Python</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="car-display">
+                <div class="car-image">
+                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="50" y="80" width="300" height="70" rx="10" fill="#3f51b5"/>
+                        <rect x="70" y="60" width="260" height="40" rx="5" fill="#2196f3"/>
+                        <circle cx="110" cy="170" r="20" fill="#222"/>
+                        <circle cx="110" cy="170" r="10" fill="#555"/>
+                        <circle cx="290" cy="170" r="20" fill="#222"/>
+                        <circle cx="290" cy="170" r="10" fill="#555"/>
+                        <rect x="60" y="100" width="60" height="30" fill="#90caf9" opacity="0.6"/>
+                        <rect x="280" y="100" width="60" height="30" fill="#90caf9" opacity="0.6"/>
+                        <path d="M 150 80 L 250 80 L 240 60 L 160 60 Z" fill="#1976d2"/>
+                    </svg>
+                </div>
+                
+                <div class="car-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Марка:</span>
+                        <span class="detail-value" id="car-brand">Toyota</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Модель:</span>
+                        <span class="detail-value" id="car-model">Camry</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Год выпуска:</span>
+                        <span class="detail-value" id="car-year">2020</span>
+                    </div>
+                </div>
+                
+                <div class="fuel-gauge">
+                    <div class="gauge-label">
+                        <span>Уровень топлива</span>
+                        <span id="fuel-amount">10 л</span>
+                    </div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill" id="fuel-gauge"></div>
+                    </div>
+                </div>
+                
+                <div class="status-indicator">
+                    <div class="engine-status" id="engine-status">
+                        <i class="fas fa-engine-warning icon"></i>
+                        <span>Двигатель выключен</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <h2><i class="fas fa-sliders-h"></i> Управление автомобилем</h2>
+                
+                <div class="control-group">
+                    <label class="control-label">Заправка автомобиля</label>
+                    <div class="input-group">
+                        <input type="number" id="refuel-liters" min="1" max="100" value="20" placeholder="Количество литров">
+                        <button class="btn btn-primary" id="refuel-btn">
+                            <i class="fas fa-gas-pump"></i> Заправить
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Управление двигателем</label>
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="start-engine-btn">
+                            <i class="fas fa-play"></i> Запустить двигатель
+                        </button>
+                        <button class="btn btn-secondary" id="stop-engine-btn" disabled>
+                            <i class="fas fa-stop"></i> Остановить двигатель
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Поездка на автомобиле</label>
+                    <div class="input-group">
+                        <input type="number" id="drive-distance" min="1" max="1000" value="50" placeholder="Расстояние в км">
+                        <button class="btn btn-primary" id="drive-btn">
+                            <i class="fas fa-road"></i> Поехать
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="log">
+                    <h3><i class="fas fa-clipboard-list"></i> Журнал действий</h3>
+                    <div class="log-content" id="log-content">
+                        <div class="log-entry">
+                            <span class="log-time">[12:00:00]</span> Создан автомобиль Toyota Camry 2020 года
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">[12:00:05]</span> Готов к работе. Нажмите "Заправить" для начала.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Демонстрация работы класса Car на Python с использованием HTML/CSS/JavaScript</p>
+            <p class="code-reference">
+                Класс Car: 
+                <strong>__init__(brand, model, year, fuel)</strong> | 
+                <strong>start_engine()</strong> | 
+                <strong>stop_engine()</strong> | 
+                <strong>refuel(liters)</strong> | 
+                <strong>drive(km)</strong>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Реализация класса Car на JavaScript
+        class Car {
+            constructor(brand, model, year, fuel = 0) {
+                this.brand = brand;
+                this.model = model;
+                this.year = year;
+                this.fuel = fuel;
+                this.engine_on = false;
+            }
+
+            startEngine() {
+                if (this.fuel > 0) {
+                    this.engine_on = true;
+                    return "Двигатель запущен.";
+                } else {
+                    return "Нет топлива!";
+                }
+            }
+
+            stopEngine() {
+                this.engine_on = false;
+                return "Двигатель остановлен.";
+            }
+
+            refuel(liters) {
+                this.fuel += liters;
+                return `Заправлено ${liters} л. Топливо: ${this.fuel} л.`;
+            }
+
+            drive(km) {
+                if (!this.engine_on) {
+                    return "Сначала запустите двигатель.";
+                }
+
+                const fuelNeeded = km * 0.1;
+                if (this.fuel >= fuelNeeded) {
+                    this.fuel -= fuelNeeded;
+                    return `Проехали ${km} км. Осталось топлива: ${this.fuel.toFixed(1)} л.`;
+                } else {
+                    return "Недостаточно топлива.";
+                }
+            }
+        }
+
+        // Создаем экземпляр автомобиля
+        const car = new Car("Toyota", "Camry", 2020, 10);
+        
+        // Элементы DOM
+        const carBrandElement = document.getElementById('car-brand');
+        const carModelElement = document.getElementById('car-model');
+        const carYearElement = document.getElementById('car-year');
+        const fuelAmountElement = document.getElementById('fuel-amount');
+        const fuelGaugeElement = document.getElementById('fuel-gauge');
+        const engineStatusElement = document.getElementById('engine-status');
+        const startEngineBtn = document.getElementById('start-engine-btn');
+        const stopEngineBtn = document.getElementById('stop-engine-btn');
+        const refuelBtn = document.getElementById('refuel-btn');
+        const refuelInput = document.getElementById('refuel-liters');
+        const driveBtn = document.getElementById('drive-btn');
+        const driveInput = document.getElementById('drive-distance');
+        const logContentElement = document.getElementById('log-content');
+        
+        // Функция обновления интерфейса
+        function updateInterface() {
+            // Обновляем данные автомобиля
+            carBrandElement.textContent = car.brand;
+            carModelElement.textContent = car.model;
+            carYearElement.textContent = car.year;
+            
+            // Обновляем уровень топлива
+            const fuelPercentage = Math.min(100, (car.fuel / 60) * 100); // Максимум 60 л для отображения
+            fuelGaugeElement.style.width = `${fuelPercentage}%`;
+            fuelAmountElement.textContent = `${car.fuel.toFixed(1)} л`;
+            
+            // Обновляем статус двигателя
+            if (car.engine_on) {
+                engineStatusElement.innerHTML = '<i class="fas fa-engine icon"></i><span>Двигатель работает</span>';
+                engineStatusElement.classList.add('active');
+                startEngineBtn.disabled = true;
+                stopEngineBtn.disabled = false;
+            } else {
+                engineStatusElement.innerHTML = '<i class="fas fa-engine-warning icon"></i><span>Двигатель выключен</span>';
+                engineStatusElement.classList.remove('active');
+                startEngineBtn.disabled = false;
+                stopEngineBtn.disabled = true;
+            }
+            
+            // Обновляем состояние кнопок в зависимости от наличия топлива
+            if (car.fuel <= 0) {
+                startEngineBtn.disabled = true;
+            }
+        }
+        
+        // Функция добавления записи в журнал
+        function addLogEntry(message) {
+            const now = new Date();
+            const timeString = `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `<span class="log-time">${timeString}</span> ${message}`;
+            
+            logContentElement.appendChild(logEntry);
+            logContentElement.scrollTop = logContentElement.scrollHeight;
+        }
+        
+        // Обработчики событий
+        startEngineBtn.addEventListener('click', () => {
+            const result = car.startEngine();
+            addLogEntry(result);
+            updateInterface();
+        });
+        
+        stopEngineBtn.addEventListener('click', () => {
+            const result = car.stopEngine();
+            addLogEntry(result);
+            updateInterface();
+        });
+        
+        refuelBtn.addEventListener('click', () => {
+            const liters = parseFloat(refuelInput.value);
+            if (liters > 0 && liters <= 100) {
+                const result = car.refuel(liters);
+                addLogEntry(result);
+                updateInterface();
+            } else {
+                addLogEntry("Ошибка: введите корректное количество литров (1-100)");
+            }
+        });
+        
+        driveBtn.addEventListener('click', () => {
+            const distance = parseFloat(driveInput.value);
+            if (distance > 0 && distance <= 1000) {
+                const result = car.drive(distance);
+                addLogEntry(result);
+                updateInterface();
+            } else {
+                addLogEntry("Ошибка: введите корректное расстояние (1-1000 км)");
+            }
+        });
+        
+        // Инициализация интерфейса
+        updateInterface();
+        addLogEntry("Интерфейс готов. Вы можете управлять автомобилем.");
+    </script>
+</body>
+</html>
